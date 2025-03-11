@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function fetchAvailableSlots() {
-        fetch('https://famous-jungle-mandarin.glitch.me/api/available-slots/')
+        fetch('https://famous-jungle-mandarin.glitch.me/api/available-slots')
             .then(response => response.json())
             .then(data => {
                 bookedSlots = data.bookedSlots;
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         console.log("Отправляем метод post");
-        fetch('https://famous-jungle-mandarin.glitch.me/api/book-appointment/', {
+        fetch('https://famous-jungle-mandarin.glitch.me/api/book-appointment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
