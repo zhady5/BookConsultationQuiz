@@ -19,17 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const bookedTimeElement = document.getElementById('booked-time');
     const backToHomeBtn = document.getElementById('back-to-home');
 
-    //let bookedSlots = {}; // Declare bookedSlots
-    //let selectedDate = null; // Declare selectedDate
-    //let bookButton = null; // Declare bookButton
-    //let answers = {}; // Declare answers
-
-    // Declare variables for pages and elements
-    //let calendarPage = document.getElementById('calendar-page');
-    //let successPage = document.getElementById('success-page');
-    //let bookedDateElement = document.getElementById('booked-date');
-    //let bookedTimeElement = document.getElementById('booked-time');
-
 
     // Survey questions
     const questions = [
