@@ -72,9 +72,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedTimeSlot = null;
     let bookedSlots = {};
 
-    // Инициализация Supabase
+    // Инициализация supabaseClient
     // Будут храниться обезличенные нечувствительные данные
-    const supabase = window.createClient(
+    const supabaseClient = supabase.createClient(
         'https://yrpkmbqjshhniekdktlw.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlycGttYnFqc2hobmlla2RrdGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3MjAyMTUsImV4cCI6MjA1NzI5NjIxNX0.JqEl8LedjgJZvKmbZm0qPnvJOFsPpatmh6pnbOQvVYw'
     );
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Загрузка данных о слотах
     async function fetchSlots() {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('slots')
                 .select('date, time, status')
                 .order('date', { ascending: true });
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dateKey = formatDate(date);
         slotsContainer.innerHTML = '';
         
-        const { data } = await supabase
+        const { data } = await supabaseClient
             .from('slots')
             .select('time, status')
             .eq('date', dateKey);
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dateKey = formatDate(selectedDate);
         
         try {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('slots')
                 .update({ status: 'booked' })
                 .eq('date', dateKey)
