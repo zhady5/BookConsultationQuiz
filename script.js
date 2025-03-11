@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализация Supabase
     // Будут храниться обезличенные нечувствительные данные
-    const supabase = createClient(
+    const supabase = window.createClient(
         'https://yrpkmbqjshhniekdktlw.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlycGttYnFqc2hobmlla2RrdGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3MjAyMTUsImV4cCI6MjA1NzI5NjIxNX0.JqEl8LedjgJZvKmbZm0qPnvJOFsPpatmh6pnbOQvVYw'
     );
