@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentDate = new Date();
     let selectedDate = null;
     let selectedTimeSlot = null;
-    let bookedSlots = {};
+    let bookedSlots = {}; // Данные о забронированных слотах
 
     // Загрузка данных о слотах
     async function fetchSlots() {
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
-                          'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+                            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
         
         monthYearElement.textContent = `${monthNames[month]} ${year}`;
         calendarDays.innerHTML = '';
@@ -242,8 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (index < questions.length - 1) {
                         showQuestion(index + 1);
                     } else {
-                        surveyPage.classList.add('hidden');
-                        calendarPage.classList.remove('hidden');
+                        surveyPage.calendarPage.classList.remove('hidden');
                         renderCalendar();
                     }
                 }, 500);
