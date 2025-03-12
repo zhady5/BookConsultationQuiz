@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Загрузка данных о слотах
     async function fetchSlots() {
         try {
-            const response = await fetch('/api/slots');
+            const response = await fetch('https://famous-jungle-mandarin.glitch.me/api/slots');
             const { slots } = await response.json();
             bookedSlots = slots;
             
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!selectedDate || !selectedTimeSlot) return;
 
         try {
-            const response = await fetch('/api/book', {
+            const response = await fetch('https://famous-jungle-mandarin.glitch.me/api/book', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
