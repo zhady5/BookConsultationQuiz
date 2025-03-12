@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Элементы интерфейса
     const welcomePage = document.getElementById('welcome-page');
     const surveyPage = document.getElementById('survey-page');
@@ -70,24 +70,54 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentDate = new Date();
     let selectedDate = null;
     let selectedTimeSlot = null;
-    let availableDates = {};
     let bookedSlots = {};
 
-    // Загрузка данных о слотах
-    async function fetchSlots() {
+    function isBase64(str) {
         try {
-            const response = await fetch('https://famous-jungle-mandarin.glitch.me/api/slots'); // Используем относительный путь
-            const { slots } = await response.json();
-            bookedSlots = slots;
+            return Buffer.from(str, 'base64').toString('base64') === str;
+        } catch (error) {
+            return false;
+        }
+    }
 
-            // Формируем список доступных дат
-            availableDates = Object.keys(slots).reduce((acc, date) => {
-                acc[date] = true;
-                return acc;
-            }, {});
+    // Загрузка данных о слотах из GitHub Gist
+    async function fetchSlotsFromGist() {
+        try {
+            const gistId = '1c39c85fe0366fd7e147e3efbe6a492b'; // ID вашего Gist
+            const fileName = 'your_slots.csv';
 
-            if (selectedDate) {
-                renderTimeSlots(selectedDate);
+            // Запрос к GitHub API для получения содержимого Gist
+            const response = await fetch(`https://api.github.com/gists/${gistId}`);
+            const data = await response.json();
+
+            // Извлекаем содержимое файла
+            const fileContent = data.files[fileName].content;
+            
+            // Проверяем, является ли содержимое Base64
+            let decodedContent;
+            if (isBase64(fileContent)) {
+                decodedContent = Buffer.from(fileContent, 'base64').toString('utf-8');
+            } else {
+                decodedContent = fileContent; // Используем содержимое как есть
+            }
+
+             // Парсим CSV-данные
+            const rows = decodedContent.split('\n');
+            const headers = rows[0].split(',');
+
+            // Формируем объект bookedSlots
+            for (let i = 1; i < rows.length; i++) {
+                const values = rows[i].split(',');
+                const date = values[0];
+                if (!date) continue;
+
+                bookedSlots[date] = [];
+                for (let j = 1; j < headers.length; j++) {
+                    bookedSlots[date].push({
+                        time: headers[j],
+                        available: values[j] === 'TRUE'
+                    });
+                }
             }
         } catch (error) {
             console.error('Ошибка загрузки слотов:', error);
@@ -99,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-                          'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
         monthYearElement.textContent = `${monthNames[month]} ${year}`;
         calendarDays.innerHTML = '';
 
@@ -115,9 +145,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const dayElement = createDayElement(day);
             const dateKey = formatDate(new Date(year, month, day));
 
-            if (!availableDates[dateKey]) {
-                dayElement.classList.add('disabled'); // Отключаем даты, которых нет в файле
-            } else if (bookedSlots[dateKey]?.length === 6) {
+            // Проверяем, забронированы ли все слоты для этой даты
+            if (bookedSlots[dateKey]?.every(slot => !slot.available)) {
                 dayElement.classList.add('booked');
             }
 
@@ -129,11 +158,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const element = document.createElement('div');
         element.className = 'day' + (day === '' ? ' empty' : '');
         element.textContent = day;
-
         if (day !== '') {
             element.addEventListener('click', handleDayClick);
         }
-
         return element;
     }
 
@@ -143,14 +170,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         selectedDate = new Date(year, month, selectedDay);
-
-        const dateKey = formatDate(selectedDate);
-
-        if (!availableDates[dateKey]) {
-            alert('Эта дата недоступна для выбора.');
-            return;
-        }
-
         selectedDateElement.textContent = formatDate(selectedDate);
         timeSlots.classList.remove('hidden');
         await renderTimeSlots(selectedDate);
@@ -167,7 +186,8 @@ document.addEventListener('DOMContentLoaded', function() {
             slot.className = 'time-slot';
             slot.textContent = time;
 
-            if (slotsForDate.some(s => s.time === time && !s.available)) {
+            const slotData = slotsForDate.find(s => s.time === time);
+            if (slotData && !slotData.available) {
                 slot.classList.add('booked');
             } else {
                 slot.addEventListener('click', () => handleTimeSelect(time));
@@ -188,7 +208,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Бронирование слота
     async function bookSlot() {
         if (!selectedDate || !selectedTimeSlot) return;
-
         try {
             const response = await fetch('https://famous-jungle-mandarin.glitch.me/api/book', {
                 method: 'POST',
@@ -200,9 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     time: selectedTimeSlot
                 })
             });
-
             const { success } = await response.json();
-
             if (success) {
                 calendarPage.classList.add('hidden');
                 successPage.classList.remove('hidden');
@@ -241,15 +258,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-
         questionContainer.querySelectorAll('.option').forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 this.classList.add('selected');
                 answers[index] = {
                     questionId: question.id,
                     answer: question.options[parseInt(this.dataset.index)]
                 };
-
                 setTimeout(() => {
                     if (index < questions.length - 1) {
                         showQuestion(index + 1);
@@ -298,5 +313,5 @@ document.addEventListener('DOMContentLoaded', function() {
     nextMonthBtn.addEventListener('click', () => updateMonth(1));
 
     // Первоначальная загрузка
-    fetchSlots().then(renderCalendar);
+    fetchSlotsFromGist().then(renderCalendar);
 });
