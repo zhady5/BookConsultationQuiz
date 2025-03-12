@@ -72,28 +72,15 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedTimeSlot = null;
     let bookedSlots = {};
 
-    // Инициализация supabaseClient
-    // Будут храниться обезличенные нечувствительные данные
-    const supabaseClient = supabase.createClient(
-        'https://yrpkmbqjshhniekdktlw.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlycGttYnFqc2hobmlla2RrdGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3MjAyMTUsImV4cCI6MjA1NzI5NjIxNX0.JqEl8LedjgJZvKmbZm0qPnvJOFsPpatmh6pnbOQvVYw'
-    );
-
     // Загрузка данных о слотах
     async function fetchSlots() {
         try {
-            const { data, error } = await supabaseClient
-                .from('slots')
-                .select('date, time, status')
-                .order('date', { ascending: true });
-
-            if (!error) {
-                bookedSlots = data.reduce((acc, slot) => {
-                    const dateStr = new Date(slot.date).toLocaleDateString('ru-RU');
-                    if (!acc[dateStr]) acc[dateStr] = [];
-                    if (slot.status === 'booked') acc[dateStr].push(slot.time);
-                    return acc;
-                }, {});
+            const response = await fetch('/api/slots');
+            const { slots } = await response.json();
+            bookedSlots = slots;
+            
+            if (selectedDate) {
+                renderTimeSlots(selectedDate);
             }
         } catch (error) {
             console.error('Ошибка загрузки слотов:', error);
@@ -156,24 +143,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Рендеринг временных слотов
-    async function renderTimeSlots(date) {
+    function renderTimeSlots(date) {
         const dateKey = formatDate(date);
         slotsContainer.innerHTML = '';
         
-        const { data } = await supabaseClient
-            .from('slots')
-            .select('time, status')
-            .eq('date', dateKey);
-
-        const timeSlotsData = data || [];
+        const slotsForDate = bookedSlots[dateKey] || [];
         
         ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00'].forEach(time => {
             const slot = document.createElement('div');
             slot.className = 'time-slot';
             slot.textContent = time;
             
-            const slotStatus = timeSlotsData.find(t => t.time === time)?.status;
-            if (slotStatus === 'booked') {
+            if (slotsForDate.some(s => s.time === time && !s.available)) {
                 slot.classList.add('booked');
             } else {
                 slot.addEventListener('click', () => handleTimeSelect(time));
@@ -195,21 +176,28 @@ document.addEventListener('DOMContentLoaded', function() {
     async function bookSlot() {
         if (!selectedDate || !selectedTimeSlot) return;
 
-        const dateKey = formatDate(selectedDate);
-        
         try {
-            const { error } = await supabaseClient
-                .from('slots')
-                .update({ status: 'booked' })
-                .eq('date', dateKey)
-                .eq('time', selectedTimeSlot);
+            const response = await fetch('/api/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    date: formatDate(selectedDate),
+                    time: selectedTimeSlot
+                })
+            });
 
-            if (!error) {
+            const { success } = await response.json();
+            
+            if (success) {
                 calendarPage.classList.add('hidden');
                 successPage.classList.remove('hidden');
-                bookedDateElement.textContent = dateKey;
+                bookedDateElement.textContent = formatDate(selectedDate);
                 bookedTimeElement.textContent = selectedTimeSlot;
                 
+                // Обновляем локальные данные
+                const dateKey = formatDate(selectedDate);
                 if (!bookedSlots[dateKey]) bookedSlots[dateKey] = [];
                 bookedSlots[dateKey].push(selectedTimeSlot);
             }
