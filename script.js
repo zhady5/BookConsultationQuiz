@@ -242,8 +242,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (index < questions.length - 1) {
                         showQuestion(index + 1);
                     } else {
-                        surveyPage.calendarPage.classList.remove('hidden');
-                        renderCalendar();
+                        // Показываем страницу с опросом
+                        surveyPage.classList.remove('hidden');
+                        
+                        // Показываем страницу с календарём
+                        calendarPage.classList.remove('hidden');
+                        
+                        renderCalendar(); // Вызываем функцию рендера календаря
                     }
                 }, 500);
             });
