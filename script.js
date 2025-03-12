@@ -70,15 +70,22 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentDate = new Date();
     let selectedDate = null;
     let selectedTimeSlot = null;
-    let bookedSlots = {}; // Данные о забронированных слотах
+    let availableDates = {};
+    let bookedSlots = {};
 
     // Загрузка данных о слотах
     async function fetchSlots() {
         try {
-            const response = await fetch('https://famous-jungle-mandarin.glitch.me/api/slots');
+            const response = await fetch('/api/slots'); // Используем относительный путь
             const { slots } = await response.json();
             bookedSlots = slots;
-            
+
+            // Формируем список доступных дат
+            availableDates = Object.keys(slots).reduce((acc, date) => {
+                acc[date] = true;
+                return acc;
+            }, {});
+
             if (selectedDate) {
                 renderTimeSlots(selectedDate);
             }
@@ -91,9 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderCalendar() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
-        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
-                            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-        
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                          'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
         monthYearElement.textContent = `${monthNames[month]} ${year}`;
         calendarDays.innerHTML = '';
 
@@ -108,11 +114,13 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let day = 1; day <= daysInMonth; day++) {
             const dayElement = createDayElement(day);
             const dateKey = formatDate(new Date(year, month, day));
-            
-            if (bookedSlots[dateKey]?.length === 6) {
+
+            if (!availableDates[dateKey]) {
+                dayElement.classList.add('disabled'); // Отключаем даты, которых нет в файле
+            } else if (bookedSlots[dateKey]?.length === 6) {
                 dayElement.classList.add('booked');
             }
-            
+
             calendarDays.appendChild(dayElement);
         }
     }
@@ -121,11 +129,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const element = document.createElement('div');
         element.className = 'day' + (day === '' ? ' empty' : '');
         element.textContent = day;
-        
+
         if (day !== '') {
             element.addEventListener('click', handleDayClick);
         }
-        
+
         return element;
     }
 
@@ -134,11 +142,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedDay = parseInt(event.target.textContent);
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
-        
         selectedDate = new Date(year, month, selectedDay);
+
+        const dateKey = formatDate(selectedDate);
+
+        if (!availableDates[dateKey]) {
+            alert('Эта дата недоступна для выбора.');
+            return;
+        }
+
         selectedDateElement.textContent = formatDate(selectedDate);
         timeSlots.classList.remove('hidden');
-        
         await renderTimeSlots(selectedDate);
     }
 
@@ -146,20 +160,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderTimeSlots(date) {
         const dateKey = formatDate(date);
         slotsContainer.innerHTML = '';
-        
         const slotsForDate = bookedSlots[dateKey] || [];
-        
+
         ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00'].forEach(time => {
             const slot = document.createElement('div');
             slot.className = 'time-slot';
             slot.textContent = time;
-            
+
             if (slotsForDate.some(s => s.time === time && !s.available)) {
                 slot.classList.add('booked');
             } else {
                 slot.addEventListener('click', () => handleTimeSelect(time));
             }
-            
+
             slotsContainer.appendChild(slot);
         });
     }
@@ -177,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!selectedDate || !selectedTimeSlot) return;
 
         try {
-            const response = await fetch('https://famous-jungle-mandarin.glitch.me/api/book', {
+            const response = await fetch('/api/book', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -189,17 +202,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             const { success } = await response.json();
-            
+
             if (success) {
                 calendarPage.classList.add('hidden');
                 successPage.classList.remove('hidden');
                 bookedDateElement.textContent = formatDate(selectedDate);
                 bookedTimeElement.textContent = selectedTimeSlot;
-                
+
                 // Обновляем локальные данные
                 const dateKey = formatDate(selectedDate);
                 if (!bookedSlots[dateKey]) bookedSlots[dateKey] = [];
-                bookedSlots[dateKey].push(selectedTimeSlot);
+                bookedSlots[dateKey].push({ time: selectedTimeSlot, available: false });
             }
         } catch (error) {
             alert('Ошибка бронирования: ' + error.message);
@@ -218,7 +231,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function showQuestion(index) {
         progressBar.style.width = `${(index / questions.length) * 100}%`;
         const question = questions[index];
-        
         questionContainer.innerHTML = `
             <div class="question-tile">
                 <h3 class="question-title">${question.question}</h3>
@@ -242,13 +254,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (index < questions.length - 1) {
                         showQuestion(index + 1);
                     } else {
-                        // Показываем страницу с опросом
-                        surveyPage.classList.remove('hidden');
-                        
-                        // Показываем страницу с календарём
+                        surveyPage.classList.add('hidden');
                         calendarPage.classList.remove('hidden');
-                        
-                        renderCalendar(); // Вызываем функцию рендера календаря
+                        renderCalendar();
                     }
                 }, 500);
             });
