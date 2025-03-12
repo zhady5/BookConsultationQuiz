@@ -128,28 +128,29 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderCalendar() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
-        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                          'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
         monthYearElement.textContent = `${monthNames[month]} ${year}`;
         calendarDays.innerHTML = '';
-
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const firstDayAdjusted = firstDay === 0 ? 6 : firstDay - 1;
-
+    
         for (let i = 0; i < firstDayAdjusted; i++) {
             calendarDays.appendChild(createDayElement(''));
         }
-
+    
         for (let day = 1; day <= daysInMonth; day++) {
             const dayElement = createDayElement(day);
             const dateKey = formatDate(new Date(year, month, day));
-
-            // Проверяем, забронированы ли все слоты для этой даты
-            if (bookedSlots[dateKey]?.every(slot => !slot.available)) {
-                dayElement.classList.add('booked');
+    
+            // Проверяем, есть ли доступные слоты для этой даты
+            if (bookedSlots[dateKey]?.some(slot => slot.available)) {
+                dayElement.classList.add('available');
+            } else {
+                dayElement.classList.add('unavailable');
             }
-
+    
             calendarDays.appendChild(dayElement);
         }
     }
@@ -202,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
         event.target.classList.add('selected');
         selectedTimeSlot = time;
-        bookButton.disabled = false;
+        bookButton.disabled = false; // Активируем кнопку "Забронировать"
     }
 
     // Бронирование слота
@@ -225,11 +226,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 successPage.classList.remove('hidden');
                 bookedDateElement.textContent = formatDate(selectedDate);
                 bookedTimeElement.textContent = selectedTimeSlot;
-
+    
                 // Обновляем локальные данные
                 const dateKey = formatDate(selectedDate);
                 if (!bookedSlots[dateKey]) bookedSlots[dateKey] = [];
                 bookedSlots[dateKey].push({ time: selectedTimeSlot, available: false });
+    
+                // Обновляем календарь и временные слоты
+                renderCalendar();
+                await renderTimeSlots(selectedDate);
             }
         } catch (error) {
             alert('Ошибка бронирования: ' + error.message);
