@@ -226,6 +226,15 @@ body {
     color: #d8919a;
 }
 
+.day.unavailable {
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+.day.available {
+    cursor: pointer;
+}
+
 .weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
