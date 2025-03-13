@@ -201,9 +201,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Обработчик выбора времени
     function handleTimeSelect(time) {
         document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-        event.target.classList.add('selected');
+        this.classList.add('selected'); // Используем this вместо event.target
         selectedTimeSlot = time;
-        bookButton.disabled = false; // Активируем кнопку "Забронировать"
+        bookButton.disabled = false; // Активируем кнопку "Записаться"
     }
 
     // Бронирование слота
