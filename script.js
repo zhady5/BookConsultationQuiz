@@ -174,6 +174,8 @@ document.addEventListener('DOMContentLoaded', function () {
         selectedDateElement.textContent = formatDate(selectedDate);
         timeSlots.classList.remove('hidden');
         await renderTimeSlots(selectedDate);
+
+        console.log('Выбрана дата:', selectedDate); // Отладочный вывод
     }
 
     // Рендеринг временных слотов
@@ -201,44 +203,40 @@ document.addEventListener('DOMContentLoaded', function () {
     // Обработчик выбора времени
     function handleTimeSelect(time, e) {
         document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-        e.target.classList.add('selected');
+        if (e && e.target) {
+            e.target.classList.add('selected');
+        }
         selectedTimeSlot = time;
-        bookButton.disabled = false; // Активируем кнопку
+        bookButton.disabled = false; // Активируем кнопку "Записаться"
+        bookButton.classList.remove('disabled');
+        bookButton.classList.add('book-button');
+
+        console.log('Выбранное время:', selectedTimeSlot); // Отладочный вывод
     }
 
     // Бронирование слота
     async function bookSlot() {
         if (!selectedDate || !selectedTimeSlot) return;
         try {
-            const response = await fetch('https://famous-jungle-mandarin.glitch.me/api/book', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    date: formatDate(selectedDate),
-                    time: selectedTimeSlot
-                })
-            });
-            const { success } = await response.json();
-            if (success) {
-                calendarPage.classList.add('hidden');
-                successPage.classList.remove('hidden');
-                bookedDateElement.textContent = formatDate(selectedDate);
-                bookedTimeElement.textContent = selectedTimeSlot;
-    
-                // Обновляем локальные данные
-                const dateKey = formatDate(selectedDate);
-                if (!bookedSlots[dateKey]) bookedSlots[dateKey] = [];
-                bookedSlots[dateKey].push({ time: selectedTimeSlot, available: false });
-    
-                // Обновляем календарь и временные слоты
-                renderCalendar();
-                await renderTimeSlots(selectedDate);
-            }
+            sendDataToTelegram();
         } catch (error) {
             alert('Ошибка бронирования: ' + error.message);
         }
+    }
+
+    function sendDataToTelegram() {
+        const data = {
+            answers: answers.map(answer => ({
+                questionId: answer.questionId,
+                answer: answer.answer
+            })),
+            date: selectedDate ? formatDate(selectedDate) : null,
+            time: selectedTimeSlot
+        };
+    
+        // Преобразуем данные в строку JSON
+        const jsonData = JSON.stringify(data);
+        Telegram.WebApp.sendData(jsonData);
     }
 
     // Форматирование даты
