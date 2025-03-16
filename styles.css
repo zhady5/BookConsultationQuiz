@@ -227,12 +227,16 @@ body {
 }
 
 .day.unavailable {
-    color: #aaa;
+    background-color: #e0e0e0;
+    color: #808080;
+/*     color: #aaa; */
     cursor: not-allowed;
 }
 
 .day.available {
-    cursor: pointer;
+/*     cursor: pointer; */
+    background-color: #f0f0f0;
+    color: black;
 }
 
 .weekdays {
@@ -276,7 +280,8 @@ body {
 }
 
 .day.empty {
-    cursor: default;
+/*     cursor: default; */
+    visibility: hidden;
 }
 
 .time-slots {
