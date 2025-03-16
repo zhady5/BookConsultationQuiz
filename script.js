@@ -171,6 +171,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (day !== '') {
             element.addEventListener('click', handleDayClick);
         }
+
+        console.log(`Создан элемент дня: ${day}, классы: ${element.className}`); // Отладочный вывод
         return element;
     }
 
