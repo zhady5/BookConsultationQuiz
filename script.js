@@ -89,6 +89,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Запрос к GitHub API для получения содержимого Gist
             const response = await fetch(`https://api.github.com/gists/${gistId}`);
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
             const data = await response.json();
 
             // Извлекаем содержимое файла
@@ -106,6 +109,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const rows = decodedContent.split('\n');
             const headers = rows[0].split(',');
 
+            bookedSlots = {}; // Очищаем старые данные
+
             // Формируем объект bookedSlots
             for (let i = 1; i < rows.length; i++) {
                 const values = rows[i].split(',');
@@ -120,6 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 }
             }
+            console.log('Загруженные слоты:', bookedSlots);
         } catch (error) {
             console.error('Ошибка загрузки слотов:', error);
         }
@@ -136,11 +142,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const firstDayAdjusted = firstDay === 0 ? 6 : firstDay - 1;
-    
+
+        // Добавляем пустые ячейки для дней предыдущего месяца
         for (let i = 0; i < firstDayAdjusted; i++) {
             calendarDays.appendChild(createDayElement(''));
         }
-    
+
+        // Добавляем дни текущего месяца
         for (let day = 1; day <= daysInMonth; day++) {
             const dayElement = createDayElement(day);
             const dateKey = formatDate(new Date(year, month, day));
