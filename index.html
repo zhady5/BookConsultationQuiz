@@ -8,28 +8,31 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <div class="welcome-page" id="welcome-page">
             <div class="image-container">
-                <div class="blob-image">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2024-08-01_19-15-22.jpg-LM7xDkT51gNxqBYc6u6ZzbdfpZL5YI.jpeg" alt="Консультант">
+                <div class="portrait-frame">
+                    <img src="images/profile.png" alt="Консультант">
                 </div>
             </div>
             <div class="quote">
-                "Гармония жизни заключается в балансе между тем, что мы даем, и тем, что получаем."
+                "Ваш путь к внутренней свободе и балансу начинается здесь.<br>
+                Сделайте первый шаг — я готова помочь."
             </div>
             <div class="description">
-                Пройдите небольшой опрос и получите возможность записаться на бесплатную консультацию или заказать услугу, которая поможет вам достичь баланса в жизни.
+                Пройдите небольшой опрос и получите возможность записаться на консультацию или МАК расклад.
             </div>
-            <button class="start-button" id="start-survey">Начать опрос</button>
+            <button class="start-button" id="start-survey">Начать</button>
         </div>
 
         <div class="survey-page hidden" id="survey-page">
-            <div class="progress-bar">
-                <div class="progress" id="progress"></div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
             </div>
             
             <div class="question-container" id="question-container">
