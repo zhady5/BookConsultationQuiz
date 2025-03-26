@@ -273,7 +273,8 @@ document.addEventListener('DOMContentLoaded', function () {
     
         // Преобразуем данные в строку JSON
         const jsonData = JSON.stringify(data);
-        Telegram.WebApp.sendData(jsonData);
+        // Telegram.WebApp.sendData(jsonData);
+        window.parent.postMessage(jsonData, '*');
     }
 
     // Форматирование даты
