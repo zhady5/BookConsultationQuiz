@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const bookedTimeElement = document.getElementById('booked-time');
     const backToHomeBtn = document.getElementById('back-to-home');
 
+    const tg = window.Telegram.WebApp;
+
     // Новые вопросы опроса с иконками
     const questions = [
         {
@@ -274,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Преобразуем данные в строку JSON
         const jsonData = JSON.stringify(data);
         // Telegram.WebApp.sendData(jsonData);
-        Telegram.WebApp.postEvent('silent_data', data);
+        tg.postEvent('silent_data', data);
     }
 
     // Форматирование даты
@@ -386,6 +388,7 @@ document.addEventListener('DOMContentLoaded', function () {
     startSurveyBtn.addEventListener('click', () => {
         welcomePage.classList.add('hidden');
         surveyPage.classList.remove('hidden');
+        tg.expand();
         showQuestion(0);
     });
 
