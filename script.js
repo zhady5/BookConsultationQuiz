@@ -261,6 +261,25 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // function sendDataToTelegram() {
+    //     const data = {
+    //         answers: answers.map(answer => ({
+    //             questionId: answer.questionId,
+    //             answer: answer.answerText,
+    //             type: answer.answerType
+    //         })),
+    //         result: getMostFrequentAnswerType(),
+    //         date: selectedDate ? formatDate(selectedDate) : null,
+    //         time: selectedTimeSlot
+    //     };
+    
+    //     // Преобразуем данные в строку JSON
+    //     const jsonData = JSON.stringify(data);
+    //     // Telegram.WebApp.sendData(jsonData);
+    //     tg.postEvent('silent_data', data);
+    // }
+
+    // script.js (измененная функция sendDataToTelegram)
     function sendDataToTelegram() {
         const data = {
             answers: answers.map(answer => ({
@@ -273,10 +292,28 @@ document.addEventListener('DOMContentLoaded', function () {
             time: selectedTimeSlot
         };
     
-        // Преобразуем данные в строку JSON
-        const jsonData = JSON.stringify(data);
-        // Telegram.WebApp.sendData(jsonData);
-        tg.postEvent('silent_data', data);
+        // Отправка данных на сервер
+        fetch('https://famous-jungle-mandarin.glitch.me/api/save-result', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => {
+            if (response.ok) {
+                // Дополнительно: можно показать статус отправки
+                console.log('Данные успешно отправлены');
+                
+                // Для Telegram: опциональная отправка через postEvent
+                if (typeof Telegram !== 'undefined' && Telegram.WebApp?.postEvent) {
+                    Telegram.WebApp.postEvent('silent_data', data);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка отправки:', error);
+        });
     }
 
     // Форматирование даты
