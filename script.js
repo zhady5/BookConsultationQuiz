@@ -276,7 +276,17 @@ document.addEventListener('DOMContentLoaded', function () {
         // Преобразуем данные в строку JSON
         const jsonData = JSON.stringify(data);
         // Telegram.WebApp.sendData(jsonData);
-        window.parent.postMessage(jsonData, '*');
+        //window.parent.postMessage(jsonData, '*');
+        window.Telegram.WebApp.expand();
+        try {
+            const result = await Telegram.WebApp.sendData(jsonData);
+            
+            if (!result.ok) {
+                alert('Ошибка передачи данных!');
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
     
     // Обработка данных, полученных через postMessage
@@ -449,23 +459,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     backToHomeBtn.addEventListener('click', () => {
-        // Получаем токен из окружения
-        const token = process.env.GIST_TOKEN;
-
-        if (token) {
-          saveDateToGist(token)
-            .then(() => console.log('Дата успешно сохранена!'))
-            .catch((error) => {
-              console.error(error);
-              process.exit(1);
-            });
-        } else {
-          console.error('Не удалось получить токен.');
-          process.exit(1);
-        }
-        
         sendDataToTelegram();
     });
+
+    
 
     bookButton.addEventListener('click', bookSlot);
     prevMonthBtn.addEventListener('click', () => updateMonth(-1));
