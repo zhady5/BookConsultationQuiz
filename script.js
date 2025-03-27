@@ -261,28 +261,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // function sendDataToTelegram() {
-    //     const data = {
-    //         answers: answers.map(answer => ({
-    //             questionId: answer.questionId,
-    //             answer: answer.answerText,
-    //             type: answer.answerType
-    //         })),
-    //         result: getMostFrequentAnswerType(),
-    //         date: selectedDate ? formatDate(selectedDate) : null,
-    //         time: selectedTimeSlot
-    //     };
-    
-    //     // Преобразуем данные в строку JSON
-    //     const jsonData = JSON.stringify(data);
-    //     // Telegram.WebApp.sendData(jsonData);
-    //     tg.postEvent('silent_data', data);
-    // }
-
-    // Отправка данных через postMessage
     function sendDataToTelegram() {
-        const jsonData = JSON.stringify({ key: "value" }); // Ваши данные
-        window.parent.postMessage(jsonData, '*'); // Отправляем данные родительскому фрейму
+        const data = {
+            answers: answers.map(answer => ({
+                questionId: answer.questionId,
+                answer: answer.answerText,
+                type: answer.answerType
+            })),
+            result: getMostFrequentAnswerType(),
+            date: selectedDate ? formatDate(selectedDate) : null,
+            time: selectedTimeSlot
+        };
+    
+        // Преобразуем данные в строку JSON
+        const jsonData = JSON.stringify(data);
+        // Telegram.WebApp.sendData(jsonData);
+        window.parent.postMessage(jsonData, '*');
     }
     
     // Обработка данных, полученных через postMessage
