@@ -279,42 +279,30 @@ document.addEventListener('DOMContentLoaded', function () {
     //     tg.postEvent('silent_data', data);
     // }
 
-    // script.js (измененная функция sendDataToTelegram)
+    // Отправка данных через postMessage
     function sendDataToTelegram() {
-        const data = {
-            answers: answers.map(answer => ({
-                questionId: answer.questionId,
-                answer: answer.answerText,
-                type: answer.answerType
-            })),
-            result: getMostFrequentAnswerType(),
-            date: selectedDate ? formatDate(selectedDate) : null,
-            time: selectedTimeSlot
-        };
-    
-        // Отправка данных на сервер
-        fetch('https://famous-jungle-mandarin.glitch.me/api/save-result', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        .then(response => {
-            if (response.ok) {
-                // Дополнительно: можно показать статус отправки
-                console.log('Данные успешно отправлены');
-                
-                // Для Telegram: опциональная отправка через postEvent
-                if (typeof Telegram !== 'undefined' && Telegram.WebApp?.postEvent) {
-                    Telegram.WebApp.postEvent('silent_data', data);
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка отправки:', error);
-        });
+        const jsonData = JSON.stringify({ key: "value" }); // Ваши данные
+        window.parent.postMessage(jsonData, '*'); // Отправляем данные родительскому фрейму
     }
+    
+    // Обработка данных, полученных через postMessage
+    window.addEventListener('message', (event) => {
+        // Проверяем источник сообщения для безопасности
+        if (event.origin !== 'https://famous-jungle-mandarin.glitch.me') return;
+    
+        // Получаем отправленные данные
+        const receivedData = event.data;
+    
+        // Передаем данные в Telegram через Telegram.WebApp.sendData()
+        Telegram.WebApp.sendData(receivedData); // Теперь данные попадут в web_app_data
+    
+        // Альтернативно: отправляем данные на сервер
+        fetch('https://famous-jungle-mandarin.glitch.me/api/telegram-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: receivedData }),
+        });
+    });
 
     // Форматирование даты
     function formatDate(date) {
