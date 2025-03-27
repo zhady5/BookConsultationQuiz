@@ -295,9 +295,35 @@ document.addEventListener('DOMContentLoaded', function () {
         // Получаем отправленные данные
         const receivedData = event.data;
     
-        // Передаем данные в Telegram через Telegram.WebApp.sendData()
-        Telegram.WebApp.sendData(receivedData); // Теперь данные попадут в web_app_data
+                // Преобразуем объект данных в строку запроса
+        const params = Object.keys(receivedData)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(receivedData[key])}`)
+            .join('&');
+    
+        // Создаем полный URL с параметрами
+        const url = `https://famous-jungle-mandarin.glitch.me/api/telegram-data?${params}`;
+    
+        // Отправляем GET-запрос
+        sendGetRequest(url);
     });
+    
+    function sendGetRequest(url) {
+        var xhr = new XMLHttpRequest(); // Создаем новый объект XMLHttpRequest
+    
+        xhr.open("GET", url, true); // Инициализируем GET-запрос
+    
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) { // Проверяем, завершен ли запрос
+                if (xhr.status === 200) { // Проверяем, успешен ли ответ
+                    console.log("Response:", xhr.responseText); // Выводим ответ в консоль
+                } else {
+                    console.error("Error:", xhr.status); // Выводим ошибку, если запрос не успешен
+                }
+            }
+        };
+    
+        xhr.send(); // Отправляем запрос
+    }
 
     // Форматирование даты
     function formatDate(date) {
