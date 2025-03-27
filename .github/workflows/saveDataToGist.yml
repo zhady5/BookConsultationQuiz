@@ -22,4 +22,4 @@ jobs:
       - name: Run script to save date
         env:
           GIST_TOKEN: ${{ secrets.TOKEN }} # Используем секрет здесь
-        run: node ./path/to/your/script.js
+        run: node ./script.js
