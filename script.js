@@ -295,22 +295,18 @@ document.addEventListener('DOMContentLoaded', function () {
         // Получаем отправленные данные
         const receivedData = event.data;
     
-                // Преобразуем объект данных в строку запроса
-        const params = Object.keys(receivedData)
-            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(receivedData[key])}`)
-            .join('&');
-    
-        // Создаем полный URL с параметрами
-        const url = `https://famous-jungle-mandarin.glitch.me/api/telegram-data?${params}`;
-    
-        // Отправляем GET-запрос
-        sendGetRequest(url);
+        sendPostRequest(receivedData);
     });
+
     
-    function sendGetRequest(url) {
+    function sendPostRequest(jsonData) {
         var xhr = new XMLHttpRequest(); // Создаем новый объект XMLHttpRequest
+        var url = "https://famous-jungle-mandarin.glitch.me/"; // URL, на который будет отправлен запрос
     
-        xhr.open("GET", url, true); // Инициализируем GET-запрос
+        xhr.open("POST", url, true); // Инициализируем POST-запрос
+    
+        // Устанавливаем заголовок для передачи JSON-данных
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) { // Проверяем, завершен ли запрос
@@ -322,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         };
     
-        xhr.send(); // Отправляем запрос
+        xhr.send(jsonData);
     }
 
     // Форматирование даты
