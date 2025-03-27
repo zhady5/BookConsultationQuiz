@@ -279,11 +279,8 @@ document.addEventListener('DOMContentLoaded', function () {
         //window.parent.postMessage(jsonData, '*');
         window.Telegram.WebApp.expand();
         try {
-            const result = await Telegram.WebApp.sendData(jsonData);
-            
-            if (!result.ok) {
-                alert('Ошибка передачи данных!');
-            }
+            await Telegram.WebApp.sendData(jsonData);
+        
         } catch (error) {
             console.error(error);
         }
@@ -392,37 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
-
-    // Скрипт для сохранения текущей даты в Gist
-    //const fetch = require('node-fetch');
     
-    async function saveDateToGist(token) {
-      //const date = new Date().toISOString();
-        const date = '27.03.2025';
-    
-      const response = await fetch('https://api.github.com/gists', {
-        method: 'POST',
-        headers: {
-          Authorization: token ${token},
-          'Content-Type': 'application/vnd.github.v3+json'
-        },
-        body: JSON.stringify({
-          description: 'Saved date from GitHub Pages button',
-          public: true,
-          files: {
-            'date.txt': {
-              content: date
-            }
-          }
-        })
-      });
-    
-      if (!response.ok) {
-        throw new Error(Failed to create Gist: ${await response.text()});
-      }
-    
-      console.log(await response.json());
-    }
 
     // Сброс состояния
     function resetState() {
