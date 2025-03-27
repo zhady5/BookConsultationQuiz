@@ -278,31 +278,25 @@ document.addEventListener('DOMContentLoaded', function () {
         // Telegram.WebApp.sendData(jsonData);
         //window.parent.postMessage(jsonData, '*');
         window.Telegram.WebApp.expand();
-        try {
-            await Telegram.WebApp.sendData(jsonData);
-        
+        try {        
+            // Отправляем данные через postMessage
+            window.parent.postMessage(jsonData, '*');
         } catch (error) {
-            console.error(error);
+            console.error('Ошибка при отправке данных:', error);
+            alert('Произошла ошибка при отправке данных.');
         }
     }
     
     // Обработка данных, полученных через postMessage
     window.addEventListener('message', (event) => {
         // Проверяем источник сообщения для безопасности
-        if (event.origin !== 'https://famous-jungle-mandarin.glitch.me') return;
+        if (event.origin !== 'https://sam5213.github.io') return;
     
         // Получаем отправленные данные
         const receivedData = event.data;
     
         // Передаем данные в Telegram через Telegram.WebApp.sendData()
         Telegram.WebApp.sendData(receivedData); // Теперь данные попадут в web_app_data
-    
-        // Альтернативно: отправляем данные на сервер
-        fetch('https://famous-jungle-mandarin.glitch.me/api/telegram-data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: receivedData }),
-        });
     });
 
     // Форматирование даты
