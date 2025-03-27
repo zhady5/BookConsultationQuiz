@@ -384,10 +384,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Скрипт для сохранения текущей даты в Gist
-    const fetch = require('node-fetch');
+    //const fetch = require('node-fetch');
     
     async function saveDateToGist(token) {
-      const date = new Date().toISOString();
+      //const date = new Date().toISOString();
+        const date = '27.03.2025';
     
       const response = await fetch('https://api.github.com/gists', {
         method: 'POST',
