@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function sendDataToTelegram() {
+    async function sendDataToTelegram() {
         const data = {
             answers: answers.map(answer => ({
                 questionId: answer.questionId,
