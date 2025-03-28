@@ -275,16 +275,9 @@ document.addEventListener('DOMContentLoaded', function () {
     
         // Преобразуем данные в строку JSON
         const jsonData = JSON.stringify(data);
-        // Telegram.WebApp.sendData(jsonData);
+        Telegram.WebApp.sendData(jsonData);
         //window.parent.postMessage(jsonData, '*');
-        window.Telegram.WebApp.expand();
-        try {        
-            // Отправляем данные через postMessage
-            window.parent.postMessage(jsonData, '*');
-        } catch (error) {
-            console.error('Ошибка при отправке данных:', error);
-            alert('Произошла ошибка при отправке данных.');
-        }
+
     }
     
     // Обработка данных, полученных через postMessage
